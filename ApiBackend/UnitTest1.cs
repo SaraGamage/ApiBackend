@@ -16,7 +16,7 @@ namespace ApiBackend
         [Test]
         public void UnitTestThatFails()
         {
-            Assert.Pass();
+            Assert.That(false);
         }
     }
 }
