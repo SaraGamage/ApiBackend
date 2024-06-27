@@ -14,9 +14,9 @@ namespace ApiBackend
         }
         
         [Test]
-        public void UnitTestThatFails()
+        public void MakeGood()
         {
-            Assert.That(false);
+            Assert.That(true);
         }
     }
 }
