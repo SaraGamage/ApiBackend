@@ -9,11 +9,13 @@ on:
 
 jobs:
   call-workflow:
+    name: Run Selenium Tests (in other repo)
     uses: SaraGamage/seleniumtestproject/.github/workflows/dotnet.yml@main
     secrets: inherit
     needs: [build]
 
   build:
+    name: Build, test and publish unit test results to Testmo
     runs-on: ubuntu-latest
 
     steps:
