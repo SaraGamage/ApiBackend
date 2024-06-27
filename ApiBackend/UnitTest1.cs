@@ -8,7 +8,13 @@ namespace ApiBackend
         }
 
         [Test]
-        public void Test1()
+        public void UnitTestThatPasses()
+        {
+            Assert.Pass();
+        }
+        
+        [Test]
+        public void UnitTestThatFails()
         {
             Assert.Pass();
         }
