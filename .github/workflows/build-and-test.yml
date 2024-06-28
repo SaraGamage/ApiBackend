@@ -42,7 +42,7 @@ jobs:
       with:
         owner: ${{ vars.CROSS_REPO_OWNER }}
         repo: ${{ vars.CROSS_REPO_REPO }}
-        github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_SELENIUM }}
+        github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_PERM_SEL_TEST_PROJ }}
         workflow_file_name: ${{ vars.CROSS_REPO_WF_FILE }}
         ref: main
         wait_interval: 10
