@@ -75,7 +75,7 @@ jobs:
         ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
 
         npx testmo automation:run:submit-thread \
-          --instance "TESTMO_URL" \
+          --instance "$TESTMO_URL" \
           --run-id "${{ steps.testmo_run_create.outputs.testmo_run_id }}" \
           --results ./ApiBackend/testmo-unit-test-output.xml \
           -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=testmo-unit-test-output.xml" --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}"
@@ -93,10 +93,14 @@ jobs:
         workflow_file_name: ${{ vars.CROSS_REPO_TESTMO_WORKFOW_ACTION }}
         ref: main
         wait_interval: 15
-        client_payload: '{"testmo_run_id": "${{ steps.testmo_run_create.outputs.testmo_run_id }}", "env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
+        client_payload: '{"testmo_run_id": "$C_RUN_ID", "env_name": "$C_ENV", "release_version": "$C_VER" }'
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
+      env:
+        C_RUN_ID: ${{ steps.testmo_run_create.outputs.testmo_run_id }}
+        C_ENV: ${{ steps.branch_check.outputs.env_name }}
+        C_VER: ${{ steps.branch_check.outputs.release_version }}
 
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
