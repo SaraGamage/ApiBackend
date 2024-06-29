@@ -103,17 +103,6 @@ jobs:
         C_ENV: ${{ steps.branch_check.outputs.env_name }}
         C_VER: ${{ steps.branch_check.outputs.release_version }}
 
-    - name: 💠 testmo run complete 
-      run: |
-        npx testmo automation:run:complete \
-          --instance "$TESTMO_URL" \
-          --run-id "$C_RUN_ID" \
-          --no-measure-elapsed
-      env:
-        C_RUN_ID: ${{ steps.testmo_run_create.outputs.testmo_run_id }}
-        TESTMO_URL: ${{ vars.TESTMO_URL }}
-        TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
-
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
       testmo_run_id: ${{ steps.testmo_run_create.outputs.testmo_run_id }}
