@@ -105,6 +105,13 @@ jobs:
         trigger_workflow: true
         wait_workflow: true
 
+    - uses: qase-tms/gh-actions/run-complete
+      id: qase_complete
+      with:
+        token: ${{ secrets.QASE_API_TOKEN }}
+        project: CODE
+        id: ${{ steps.qase_run_create.outputs.id }}
+
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
       release_version: ${{ steps.branch_check.outputs.release_version }}
