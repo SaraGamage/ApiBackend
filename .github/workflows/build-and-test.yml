@@ -61,7 +61,7 @@ jobs:
         workflow_file_name: ${{ vars.CROSS_REPO_WF_FILE }}
         ref: main
         wait_interval: 10
-        client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}"}'
+        client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ github.sha }}" }'
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
