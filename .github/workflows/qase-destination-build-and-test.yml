@@ -1,0 +1,111 @@
+name: 🅠 Build Main App (➕Unit Tests) 📤 QASE 🅠
+
+on:
+  push:
+    branches: [ "main", "master", "Development" ]
+  pull_request:
+    branches: [ "main", "master", "Development"]
+
+jobs:
+  build:
+    name: Build, test and publish UNIT TEST results to Testmo
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Branch Check
+      id: branch_check
+      run: |
+          #use SHA for now, also careful the sha may not be expected, see: https://stackoverflow.com/a/68068674
+          echo "release_version=${{ github.sha }}" >> $GITHUB_OUTPUT
+          
+          ref="${{ github.ref }}" 
+          case "$ref" in
+            "refs/heads/master" | "refs/heads/main")
+              echo "env_name=Production" >> $GITHUB_OUTPUT
+              ;;
+            "refs/heads/develop")
+              echo "env_name=Development" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "env_name=Other" >> $GITHUB_OUTPUT
+              ;;
+          esac
+    - name: Environment Selected
+      run: echo "Environment will be ${{ steps.branch_check.outputs.env_name }}"
+    - uses: actions/checkout@v4
+
+    - name: Setup dotnet8.0.x
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore & Build
+      run: |
+       dotnet restore
+       dotnet build --no-restore
+
+    - name: Run Selenium Tests [dotnet test] with XML output
+      id: test_run_output
+      run: |
+
+        ## do the tests to produce the XML output in JUNIT format
+        dotnet test --no-build --verbosity normal --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}" --logger:"junit;LogFilePath=qase-unit-test-output.xml"
+
+        ## what we're calling the "run" to be sent to Qase as `Title`
+        run_name=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-Selenium-Tests')
+        echo "run_name=$run_name" >> $GITHUB_OUTPUT
+        
+        # setup more Qase data
+        if [ "${{ steps.branch_check.outputs.env_name }}" = "Production" ]; then
+            echo "qase_env_slug=prod" >> $GITHUB_OUTPUT
+        else
+            echo "qase_env_slug=dev" >> $GITHUB_OUTPUT
+        fi 
+
+    ## 🅠 QASE Create the RUN here, and will pass it later to `🅠 [CrossRepo] Run Selenium` action call
+    - uses: qase-tms/gh-actions/run-create@v1
+      id: qase_run_create
+      with:
+        token: ${{ secrets.QASE_API_TOKEN }}
+        project: ${{ vars.QASE_PROJECT_SLUG}}
+        title: ${{ steps.test_run_output.outputs.run_name }}
+        description: |
+          ${{ steps.branch_check.outputs.env_name }}
+          ${{ steps.branch_check.outputs.release_version }}
+        environment: ${{ steps.test_run_output.outputs.qase_env_slug }}
+        verbose: true
+        #milestone: 123
+        #plan: 321
+
+    ## 🅠 QASE reporting here, it's forked to help debug issue with xml filepath
+    - name: 🅠 Unit Test Reporting 📤 QASE Publish 🅠
+      uses: saragamage/qase-gh-actions/report@main
+      id: qase_report
+      with:
+        token: ${{ secrets.QASE_API_TOKEN }}
+        project: ${{ vars.QASE_PROJECT_SLUG}}
+        id: ${{ steps.qase_run_create.outputs.id }}
+        format: junit
+        path: ./seleniumtestproject/qase-unit-test-output.xml
+        batch: 100
+        verbose: true
+
+    ## Cross repo call, this will result in the GA in 
+    - name: 🅠 [CrossRepo] Run Selenium Tests with 📤 QASE Publish 🅠
+      uses: saragamage/trigger-workflow-and-wait@master
+      with:
+        owner: ${{ vars.CROSS_REPO_OWNER }}
+        repo: ${{ vars.CROSS_REPO_REPO_NAME }}
+        github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_PERM_SEL_TEST_PROJ }}
+        workflow_file_name: ${{ vars.CROSS_REPO_QASE_WORKFOW_ACTION }}
+        ref: main
+        wait_interval: 15
+        client_payload: '{"qase_run_id": "${{ steps.qase_run_create.outputs.id }}", "env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
+        propagate_failure: false
+        trigger_workflow: true
+        wait_workflow: true
+
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }}
+      release_version: ${{ steps.branch_check.outputs.release_version }}
+      qase_run_id: ${{ steps.qase_run_create.outputs.id }}
