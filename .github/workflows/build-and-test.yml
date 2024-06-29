@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build, test and publish unit test results to Testmo
+    name: Build, test and publish UNIT TEST results to Testmo
     runs-on: ubuntu-latest
 
     steps:
@@ -33,10 +33,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+    - name: Restore & Build
+      run: |
+       dotnet restore
+       dotnet build --no-restore
     - name: Test and Reporting
       run: |
         RUN_NAME=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-API-Unit-Tests')
@@ -68,4 +68,3 @@ jobs:
 
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
-    #uses: SaraGamage/seleniumtestproject/.github/workflows/dotnet.yml@main
