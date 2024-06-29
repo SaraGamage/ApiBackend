@@ -64,6 +64,10 @@ jobs:
           --source Unit-and-Selenium)
         echo "testmo_run_id=$ID" >> $GITHUB_OUTPUT
         
+      env:
+        TESTMO_URL: ${{ vars.TESTMO_URL }}
+        TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
+        
     - name: 💠 Test and Reporting 📤 testmo Publish 
       run: |
 
