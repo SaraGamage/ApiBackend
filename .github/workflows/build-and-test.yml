@@ -39,6 +39,7 @@ jobs:
        dotnet build --no-restore
     - name: Test and Reporting
       run: |
+        echo "we are working on ENV (env_name): ${{ steps.branch_check.outputs.env_name }}"
         RUN_NAME=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-API-Unit-Tests')
         npm ci 
         npm install --no-save @testmo/testmo-cli
