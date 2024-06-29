@@ -1,5 +1,5 @@
 
-name: BUILD-AND-TEST-DEV-TESTING
+name: Build Main App (including Unit Tests Run)
 
 on:
   push:
@@ -13,23 +13,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Branch Check (on develop branch!)
+    - name: Branch Check
       id: branch_check
       run: |
-          echo "Running on branch ${{ github.ref }}"
-          if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+          #use SHA for now, also careful the sha may not be expected, see: https://stackoverflow.com/a/68068674
+          echo "{release_version}={${{ github.sha }}}" >> $GITHUB_STATE
+
+          if [ "$ref" = "refs/heads/master" ] || [ "$ref" = "refs/heads/main" ]; then
             echo "{env_name}={Production}" >> $GITHUB_STATE
-          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "{env_name}={Production}" >> $GITHUB_STATE
-          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
-            echo "{env_name}={Development}" >> $GITHUB_STATE
           else
             echo "{env_name}={Development}" >> $GITHUB_STATE
           fi         
+          # case "$ref" in
+          #   "refs/heads/master" | "refs/heads/main")
+          #     echo "{env_name}={Production}" >> $GITHUB_STATE
+          #     ;;
+          #   "refs/heads/develop")
+          #     echo "{env_name}={Development}" >> $GITHUB_STATE
+          #     ;;
+          #   *)
+          #     echo "{env_name}={Development}" >> $GITHUB_STATE
+          #     ;;
+          # esac
     - name: Environment Selected
       run: echo "Environment will be ${{ steps.branch_check.outputs.env_name }}"
     - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Setup dotnet8.0.x
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
@@ -39,7 +48,6 @@ jobs:
        dotnet build --no-restore
     - name: Test and Reporting
       run: |
-        echo "we are working on ENV (env_name): ${{ steps.branch_check.outputs.env_name }}"
         RUN_NAME=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-API-Unit-Tests')
         npm ci 
         npm install --no-save @testmo/testmo-cli
@@ -49,7 +57,7 @@ jobs:
             --name "$RUN_NAME" \
             --source "api-unit-tests" \
             --results **/*unit-test-output.xml \
-            -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=unit-test-output.xml"
+            -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=unit-test-output.xml" --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}"
       env:
         TESTMO_URL: ${{ vars.TESTMO_URL }}
         TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
@@ -62,7 +70,7 @@ jobs:
         workflow_file_name: ${{ vars.CROSS_REPO_WF_FILE }}
         ref: main
         wait_interval: 15
-        client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ github.sha }}" }'
+        client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
