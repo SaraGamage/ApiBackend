@@ -17,22 +17,22 @@ jobs:
       id: branch_check
       run: |
           #use SHA for now, also careful the sha may not be expected, see: https://stackoverflow.com/a/68068674
-          echo "release_version=${{ github.sha }}" >> $GITHUB_STATE
+          echo "release_version=${{ github.sha }}" >> $GITHUB_OUTPUT
 
           if [ "$ref" = "refs/heads/master" ] || [ "$ref" = "refs/heads/main" ]; then
-            echo "env_name=Production" >> $GITHUB_STATE
+            echo "env_name=Production" >> $GITHUB_OUTPUT
           else
-            echo "env_name=Development" >> $GITHUB_STATE
+            echo "env_name=Development" >> $GITHUB_OUTPUT
           fi         
           # case "$ref" in
           #   "refs/heads/master" | "refs/heads/main")
-          #     echo "env_name=Production" >> $GITHUB_STATE
+          #     echo "env_name=Production" >> $GITHUB_OUTPUT
           #     ;;
           #   "refs/heads/develop")
-          #     echo "env_name=Development" >> $GITHUB_STATE
+          #     echo "env_name=Development" >> $GITHUB_OUTPUT
           #     ;;
           #   *)
-          #     echo "env_name=Development" >> $GITHUB_STATE
+          #     echo "env_name=Development" >> $GITHUB_OUTPUT
           #     ;;
           # esac
     - name: Environment Selected
