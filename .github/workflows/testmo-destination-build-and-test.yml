@@ -73,14 +73,16 @@ jobs:
 
         ## npx is `Run a command from a local or remote npm package`
         ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
-
+        echo "id: $RUN_ID"
+        
         npx testmo automation:run:submit-thread \
           --instance "$TESTMO_URL" \
-          --run-id "${{ steps.testmo_run_create.outputs.testmo_run_id }}" \
+          --run-id "$RUN_ID" \
           --results ./ApiBackend/testmo-unit-test-output.xml \
           -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=testmo-unit-test-output.xml" --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}"
 
       env:
+        RUN_ID: ${{ steps.testmo_run_create.outputs.testmo_run_id}}
         TESTMO_URL: ${{ vars.TESTMO_URL }}
         TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
 
