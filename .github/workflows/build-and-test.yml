@@ -19,7 +19,7 @@ jobs:
           #use SHA for now, also careful the sha may not be expected, see: https://stackoverflow.com/a/68068674
           echo "release_version=${{ github.sha }}" >> $GITHUB_OUTPUT
           
-          ref = ${{ github.ref }}
+          ref="${{ github.ref }}"
           if [ "$ref" = "refs/heads/master" ] || [ "$ref" = "refs/heads/main" ]; then
               echo "env_name=Production" >> $GITHUB_OUTPUT
           else
