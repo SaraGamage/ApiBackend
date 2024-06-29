@@ -86,7 +86,7 @@ jobs:
         project: ${{ vars.QASE_PROJECT_SLUG}}
         id: ${{ steps.qase_run_create.outputs.id }}
         format: junit
-        path: ./seleniumtestproject/qase-unit-test-output.xml
+        path: ./ApiBackend/qase-unit-test-output.xml
         batch: 100
         verbose: true
 
