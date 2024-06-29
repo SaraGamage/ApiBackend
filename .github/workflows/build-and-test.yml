@@ -1,5 +1,5 @@
 
-name: BUILD-AND-TEST
+name: BUILD-AND-TEST-DEV-TESTING
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Branch Check
+    - name: Branch Check (on develop branch!)
       id: branch_check
       run: |
           echo "Running on branch ${{ github.ref }}"
