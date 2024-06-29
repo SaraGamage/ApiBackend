@@ -13,6 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Branch Check
+      id: branch_check
+      run: |
+            echo "Running on branch ${{ github.ref }}"
+            if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+              echo "::set-output name=env_name::Production"
+            elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              echo "::set-output name=env_name::Production"
+            elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+              echo "::set-output name=env_name::Development"
+            else
+                echo "::set-output name=env_name::Other"
+            fi         
+        
+    - name: Environment Selected
+      run: echo "Environment will be ${{ steps.branch_check.outputs.env_name }}"
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -50,4 +66,7 @@ jobs:
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
+
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }}
     #uses: SaraGamage/seleniumtestproject/.github/workflows/dotnet.yml@main
