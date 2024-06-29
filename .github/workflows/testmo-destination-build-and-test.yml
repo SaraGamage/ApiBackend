@@ -106,3 +106,4 @@ jobs:
 
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
+      testmo_run_id: ${{ steps.testmo_run_create.outputs.testmo_run_id }}
