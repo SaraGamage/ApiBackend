@@ -74,7 +74,7 @@ jobs:
         ## npx is `Run a command from a local or remote npm package`
         ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
         echo "id: $RUN_ID"
-        
+
         npx testmo automation:run:submit-thread \
           --instance "$TESTMO_URL" \
           --run-id "$RUN_ID" \
@@ -95,7 +95,7 @@ jobs:
         workflow_file_name: ${{ vars.CROSS_REPO_TESTMO_WORKFOW_ACTION }}
         ref: main
         wait_interval: 15
-        client_payload: '{"testmo_run_id": "$C_RUN_ID", "env_name": "$C_ENV", "release_version": "$C_VER" }'
+        client_payload: '{"testmo_run_id": "${{ env.C_RUN_ID }}", "env_name": "${{ env.C_ENV }}", "release_version": "${{ env.C_VER }}" }'
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
