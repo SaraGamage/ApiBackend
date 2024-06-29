@@ -49,22 +49,32 @@ jobs:
        dotnet restore
        dotnet build --no-restore
 
+    - name: Create testmo run
+      id: testmo_run_create
+      run: |
+        run_name=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-Unit-and-Selenium-Tests')
+
+        ID=$(npx testmo automation:run:create \
+          --instance "$TESTMO_URL" \
+          --project-id 1 \
+          --name "$run_name" \
+          --source Unit-and-Selenium)
+        echo "testmo_run_id=$ID" >> $GITHUB_OUTPUT
+        
     - name: 💠 Test and Reporting 📤 testmo Publish 
       run: |
-        RUN_NAME=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-API-Unit-Tests')
         npm ci 
         npm install --no-save @testmo/testmo-cli
 
         ## npx is `Run a command from a local or remote npm package`
         ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
 
-        npx testmo automation:run:submit \
-            --instance "$TESTMO_URL" \
-            --project-id 1 \
-            --name "$RUN_NAME" \
-            --source "api-unit-tests" \
-            --results **/*unit-test-output.xml \
-            -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=unit-test-output.xml" --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}"
+        npx testmo automation:run:submit-thread \
+          --instance "$TESTMO_URL" \
+          --run-id "${{ steps.testmo_run_create.outputs.testmo_run_id }}" \
+          --results ./ApiBackend/testmo-unit-test-output.xml \
+          -- dotnet test --no-build --verbosity normal --logger:"junit;LogFilePath=testmo-unit-test-output.xml" --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}"
+
       env:
         TESTMO_URL: ${{ vars.TESTMO_URL }}
         TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
@@ -78,7 +88,7 @@ jobs:
         workflow_file_name: ${{ vars.CROSS_REPO_TESTMO_WORKFOW_ACTION }}
         ref: main
         wait_interval: 15
-        client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
+        client_payload: '{"testmo_run_id": "${{ steps.testmo_run_create.outputs.testmo_run_id }}", "env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
         propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
