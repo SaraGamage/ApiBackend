@@ -44,10 +44,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Restore & Build
+    - name: Restore & Build & NPM Testmo Install
       run: |
        dotnet restore
        dotnet build --no-restore
+
+       npm ci 
+       npm install --no-save @testmo/testmo-cli
 
     - name: Create testmo run
       id: testmo_run_create
@@ -63,8 +66,6 @@ jobs:
         
     - name: 💠 Test and Reporting 📤 testmo Publish 
       run: |
-        npm ci 
-        npm install --no-save @testmo/testmo-cli
 
         ## npx is `Run a command from a local or remote npm package`
         ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
