@@ -61,7 +61,7 @@ jobs:
         github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_PERM_SEL_TEST_PROJ }}
         workflow_file_name: ${{ vars.CROSS_REPO_WF_FILE }}
         ref: main
-        wait_interval: 10
+        wait_interval: 15
         client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ github.sha }}" }'
         propagate_failure: false
         trigger_workflow: true
