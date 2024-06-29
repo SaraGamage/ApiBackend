@@ -1,5 +1,4 @@
-
-name: Build Main App (including Unit Tests Run)
+name: 💠 Build Main App (➕Unit Tests) 📤 testmo 💠
 
 on:
   push:
@@ -39,19 +38,26 @@ jobs:
     - name: Environment Selected
       run: echo "Environment will be ${{ steps.branch_check.outputs.env_name }}"
     - uses: actions/checkout@v4
+
     - name: Setup dotnet8.0.x
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
     - name: Restore & Build
       run: |
        dotnet restore
        dotnet build --no-restore
-    - name: Test and Reporting
+
+    - name: 💠 Test and Reporting 📤 testmo Publish 
       run: |
         RUN_NAME=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-API-Unit-Tests')
         npm ci 
         npm install --no-save @testmo/testmo-cli
+
+        ## npx is `Run a command from a local or remote npm package`
+        ## call into the testmo node executable, submit a run and the last line is the call to dotnet test (NOTE the space after -- and before `dotnet test`)
+
         npx testmo automation:run:submit \
             --instance "$TESTMO_URL" \
             --project-id 1 \
@@ -62,13 +68,14 @@ jobs:
       env:
         TESTMO_URL: ${{ vars.TESTMO_URL }}
         TESTMO_TOKEN: ${{ secrets.TESTMO_TOKEN }}
-    - name: Run Selenium Tests (in other repo)
+
+    - name: 💠 [CrossRepo] Run Selenium Tests with 📤 testmo Publish 
       uses: saragamage/trigger-workflow-and-wait@master
       with:
         owner: ${{ vars.CROSS_REPO_OWNER }}
         repo: ${{ vars.CROSS_REPO_REPO }}
         github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_PERM_SEL_TEST_PROJ }}
-        workflow_file_name: ${{ vars.CROSS_REPO_WF_FILE }}
+        workflow_file_name: ${{ vars.CROSS_REPO_TESTMO_WORKFOW_ACTION }}
         ref: main
         wait_interval: 15
         client_payload: '{"env_name": "${{ steps.branch_check.outputs.env_name }}", "release_version": "${{ steps.branch_check.outputs.release_version }}" }'
