@@ -52,7 +52,7 @@ jobs:
         dotnet test --no-build --verbosity normal --environment TEST_ENV="${{ steps.branch_check.outputs.env_name }}" --environment TEST_VER="${{ steps.branch_check.outputs.release_version }}" --logger:"junit;LogFilePath=qase-unit-test-output.xml"
 
         ## what we're calling the "run" to be sent to Qase as `Title`
-        run_name=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-Selenium-Tests')
+        run_name=$(TZ=':Australia/Melbourne' date '+%Y%m%d-%H:%M-Unit-and-Selenium-Tests')
         echo "run_name=$run_name" >> $GITHUB_OUTPUT
         
         # setup more Qase data
