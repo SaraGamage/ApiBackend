@@ -109,7 +109,7 @@ jobs:
       id: qase_complete
       with:
         token: ${{ secrets.QASE_API_TOKEN }}
-        project: CODE
+        project: ${{ vars.QASE_PROJECT_SLUG}}
         id: ${{ steps.qase_run_create.outputs.id }}
 
     outputs:
