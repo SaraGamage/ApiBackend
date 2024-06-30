@@ -96,7 +96,7 @@ jobs:
       with:
         owner: ${{ vars.CROSS_REPO_OWNER }}
         repo: ${{ vars.CROSS_REPO_REPO_NAME }}
-        github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN_PERM_SEL_TEST_PROJ }}
+        github_token: ${{ secrets.GH_PERSONAL_ACCESS_CROSS_REPO }}
         workflow_file_name: ${{ vars.CROSS_REPO_QASE_WORKFOW_ACTION }}
         ref: main
         wait_interval: 15
